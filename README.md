@@ -1,6 +1,5 @@
-Twitter Bot Framework Integration
-=================================
-
+Twitter - Bot Framework Integration
+===================================
 
 ## Running and testing the sample ##
 
@@ -44,11 +43,11 @@ Now you should have the following details at hand:
 
     ```xml
     <appSettings>
-      <add key="directLineSecret" value="BOT DIRECT LINE SECRET HERE"/>
-      <add key="consumerKey" value="TWITTER CONSUMER KEY HERE"/>
-      <add key="consumerSecret" value="TWITTER CONSUMER SECRET HERE"/>
-      <add key="accessToken" value="TWITTER ACCESS TOKEN HERE"/>
-      <add key="accessTokenSecret" value="TWITTER ACCESS TOKEN SECRET HERE"/>
+      <add key="directLineSecret" value="BOT DIRECT LINE SECRET HERE" />
+      <add key="consumerKey" value="TWITTER CONSUMER KEY HERE" />
+      <add key="consumerSecret" value="TWITTER CONSUMER SECRET HERE" />
+      <add key="accessToken" value="TWITTER ACCESS TOKEN HERE" />
+      <add key="accessTokenSecret" value="TWITTER ACCESS TOKEN SECRET HERE" />
     </appSettings>
     ```
 
@@ -61,3 +60,15 @@ Now you should have the following details at hand:
     * Note that it **is** possible to DM yourself.
 4. That's it! You should now be receiving replies from your bot.
 
+## Class library implementation ##
+
+The class library ([here](/TwitterBotFWIntegration)) consists of three main classes:
+
+* [TwitterBotIntegrationManager](/TwitterBotFWIntegration/TwitterBotIntegrationManager.cs) is the
+  main class and provides the only API you need to use.
+* [DirectLineManager](/TwitterBotFWIntegration/DirectLineManager.cs) implements the Direct Line
+  connection with the bot. The class allows you to send and retrieve messages (`Activity`) to/from
+  the bot.
+* [Twitter](/TwitterBotFWIntegration/Twitter.cs) utilizes
+  [Tweetinvi library](https://github.com/linvi/tweetinvi) to receive and send Tweets via the Twitter
+  REST API.
