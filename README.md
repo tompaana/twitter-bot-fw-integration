@@ -72,3 +72,14 @@ The class library ([here](/TwitterBotFWIntegration)) consists of three main clas
 * [Twitter](/TwitterBotFWIntegration/Twitter.cs) utilizes
   [Tweetinvi library](https://github.com/linvi/tweetinvi) to receive and send Tweets via the Twitter
   REST API.
+
+### Usage ###
+
+```cs
+TwitterBotIntegrationManager twitterBotIntegrationManager = new TwitterBotIntegrationManager(
+    directLineSecret, consumerKey, consumerSecret, accessToken, accessTokenSecret);
+
+twitterBotIntegrationManager.Start();
+```
+
+See [Program.cs](/TwitterBotSample/Program.cs) of the sample.
