@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterBotSample", "TwitterBotSample\TwitterBotSample.csproj", "{EC43063B-3B4A-4363-9CDD-A948EBD25309}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterBotFWIntegration", "TwitterBotFWIntegration\TwitterBotFWIntegration.csproj", "{0A1A4D2B-58C7-47BF-9856-38E7DAF8E70E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC43063B-3B4A-4363-9CDD-A948EBD25309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC43063B-3B4A-4363-9CDD-A948EBD25309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC43063B-3B4A-4363-9CDD-A948EBD25309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC43063B-3B4A-4363-9CDD-A948EBD25309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A1A4D2B-58C7-47BF-9856-38E7DAF8E70E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A1A4D2B-58C7-47BF-9856-38E7DAF8E70E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A1A4D2B-58C7-47BF-9856-38E7DAF8E70E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A1A4D2B-58C7-47BF-9856-38E7DAF8E70E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6AE3D5EB-BEC5-4274-906D-7BA3C511F2D7}
+	EndGlobalSection
+EndGlobal
