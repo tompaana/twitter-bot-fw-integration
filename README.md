@@ -7,7 +7,7 @@ Twitter Bot Framework Integration
 ### Prerequisites ###
 
 The assumption here is that you already have a bot created. If not, go to the
-[https://dev.botframework.com](Bot Framework developer portal) to learn how to create one. Note
+[Bot Framework developer portal](https://dev.botframework.com) to learn how to create one. Note
 that you need to have **Direct Line** enabled and you will need the **Direct Line secret**.
 
 * You need to have a Twitter account. If you don't have one, sign up at twitter.com
@@ -38,8 +38,8 @@ Now you should have the following details at hand:
     * Access Token
     * Access Token Secret
 
-1. Open the solution ([/TwitterBotSample.sln](TwitterBotSample.sln)), locate the
-   [/TwitterBotSample/Secrets.config](Secrets.config) file and insert the aforementioned keys and
+1. Open the solution ([TwitterBotSample.sln](/TwitterBotSample.sln)) in Visual Studio, locate the
+   [Secrets.config](/TwitterBotSample/Secrets.config) file and insert the aforementioned keys and
    secrets there.
 
     ```xml
