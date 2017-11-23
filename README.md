@@ -52,8 +52,9 @@ Now you should have the following details at hand:
     </appSettings>
     ```
 
-2. Run the solution (make sure that `TwitterBotSample` is set as the start-up project.
-3. Send a **Direct Message** in Twitter to the Twitter user/account associated with your Twitter app.
+2. Run the solution (make sure that `TwitterBotSample` is set as the start-up project).
+3. While the solution is running, send a **Direct Message** in Twitter to the Twitter user/account
+   associated with your Twitter app.
     * You can verify the user/account in
       [Twitter Application Management portal](https://apps.twitter.com)
       on **Keys and Access Tokens** tab under **Your Access Token** (see **Owner**).
