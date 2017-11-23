@@ -57,5 +57,6 @@ Now you should have the following details at hand:
     * You can verify the user/account in
       [Twitter Application Management portal](https://apps.twitter.com)
       on **Keys and Access Tokens** tab under **Your Access Token** (see **Owner**).
+    * Note that it **is** possible to DM yourself.
 4. That's it! You should now be receiving replies from your bot.
 
