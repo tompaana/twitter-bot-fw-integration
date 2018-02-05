@@ -21,13 +21,14 @@ namespace TwitterBotSample
         }
         static void Main()
         {
-            TwitterBotIntegrationManager twitterBotConnection = CreateTwitterBotIntegrationManager();
-
-            twitterBotConnection.Start();
-
-            while (true)
+            using (TwitterBotIntegrationManager twitterBotConnection = CreateTwitterBotIntegrationManager())
             {
-                Thread.Sleep(1000);
+                twitterBotConnection.Start();
+
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                }
             }
         }
     }

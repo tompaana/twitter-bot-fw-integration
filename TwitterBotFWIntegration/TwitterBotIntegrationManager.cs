@@ -2,84 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TwitterBotFWIntegration.Cache;
+using TwitterBotFWIntegration.Models;
 
 namespace TwitterBotFWIntegration
 {
-    /// <summary>
-    /// Note that all comparisons are done using the message ID only!
-    /// </summary>
-    class MessageIdAndTimestamp : IEquatable<MessageIdAndTimestamp>
-    {
-        public MessageIdAndTimestamp(string messageId)
-        {
-            if (string.IsNullOrEmpty(messageId))
-            {
-                throw new ArgumentNullException("Message ID cannot be null or empty");
-            }
-
-            MessageId = messageId;
-            Timestamp = DateTime.Now;
-        }
-
-        public string MessageId
-        {
-            get;
-            private set;
-        }
-
-        public DateTime Timestamp
-        {
-            get;
-            private set;
-        }
-
-        public bool Equals(MessageIdAndTimestamp other)
-        {
-            return (other.MessageId.Equals(MessageId));
-        }
-
-        public override int GetHashCode()
-        {
-            int result = 0;
-
-            for (int i = 0; i < MessageId.Length; ++i)
-            {
-                result += MessageId[i];
-            }
-
-            return result;
-        }
-    }
-
-    class TwitterUserIdentifier : IEquatable<TwitterUserIdentifier>
-    {
-        public long Id
-        {
-            get;
-            set;
-        }
-        public string ScreenName
-        {
-            get;
-            set;
-        }
-
-        public bool Equals(TwitterUserIdentifier other)
-        {
-            return (other.Id == Id
-                && other.ScreenName.Equals(ScreenName));
-        }
-    }
-
     /// <summary>
     /// The main class and API of the library.
     /// </summary>
     public class TwitterBotIntegrationManager : IDisposable
     {
-        private DirectLineManager _directLineManager;
-        private Twitter _twitter;
-        private Dictionary<MessageIdAndTimestamp, TwitterUserIdentifier> _twitterUsersWaitingForReply;
-        private Dictionary<MessageIdAndTimestamp, Activity> _pendingReplies;
+        protected DirectLineManager _directLineManager;
+        protected TwitterManager _twitterManager;
+        protected IMessageAndUserIdCache _messageAndUserIdCache;
 
         /// <summary>
         /// Constructor.
@@ -89,19 +24,19 @@ namespace TwitterBotFWIntegration
         /// <param name="consumerSecret">The Twitter consumer secret.</param>
         /// <param name="accessToken">The Twitter app access token.</param>
         /// <param name="accessTokenSecret">The Twitter app secret.</param>
+        /// <param name="messageAndUserIdCache">A message and user ID cache implementation.</param>
         public TwitterBotIntegrationManager(
             string directLineSecret,
             string consumerKey, string consumerSecret,
-            string accessToken = null, string accessTokenSecret = null)
+            string accessToken = null, string accessTokenSecret = null,
+            IMessageAndUserIdCache messageAndUserIdCache = null)
         {
             _directLineManager = new DirectLineManager(directLineSecret);
-            _twitter = new Twitter(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+            _twitterManager = new TwitterManager(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+            _messageAndUserIdCache = messageAndUserIdCache ?? new InMemoryMessageAndUserIdCache();
 
             _directLineManager.ActivitiesReceived += OnActivitiesReceived;
-            _twitter.TweetReceived += OnTweetReceivedAsync;
-
-            _twitterUsersWaitingForReply = new Dictionary<MessageIdAndTimestamp, TwitterUserIdentifier>();
-            _pendingReplies = new Dictionary<MessageIdAndTimestamp, Activity>();
+            _twitterManager.TweetReceived += OnTweetReceivedAsync;
         }
 
         /// <summary>
@@ -109,16 +44,16 @@ namespace TwitterBotFWIntegration
         /// </summary>
         public void Start()
         {
-            _twitter.StartStream();
+            _twitterManager.StartStream();
         }
 
         public void Dispose()
         {
             _directLineManager.ActivitiesReceived -= OnActivitiesReceived;
-            _twitter.TweetReceived -= OnTweetReceivedAsync;
+            _twitterManager.TweetReceived -= OnTweetReceivedAsync;
 
             _directLineManager.Dispose();
-            _twitter.Dispose();
+            _twitterManager.Dispose();
         }
 
         /// <summary>
@@ -128,7 +63,7 @@ namespace TwitterBotFWIntegration
         /// <param name="activity">The activity containing the message.</param>
         /// <param name="twitterUserIdentifier">The IDs of the Twitter user to reply to.</param>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private void ReplyInTwitter(Activity activity, TwitterUserIdentifier twitterUserIdentifier)
+        protected virtual void ReplyInTwitter(Activity activity, TwitterUserIdentifier twitterUserIdentifier)
         {
             if (activity == null || twitterUserIdentifier == null)
             {
@@ -145,49 +80,7 @@ namespace TwitterBotFWIntegration
             System.Diagnostics.Debug.WriteLine(
                 $"Replying to user '{twitterUserIdentifier.ScreenName}' using message in activity with message ID '{messageId}'");
 
-            _twitter.SendMessage(activity.Text, twitterUserIdentifier.Id, twitterUserIdentifier.ScreenName);
-
-            MessageIdAndTimestamp messageIdAndTimestamp = new MessageIdAndTimestamp(messageId);
-            _twitterUsersWaitingForReply.Remove(messageIdAndTimestamp);
-            _pendingReplies.Remove(messageIdAndTimestamp);
-        }
-
-        /// <summary>
-        /// Check the message IDs in the pending activities and the Twitter user identifier
-        /// dictionary for matches. If a match is found, the message in the activity is sent to
-        /// the matching Twitter user.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        private void CheckForPendingActivities()
-        {
-            if (_pendingReplies.Count > 0 && _twitterUsersWaitingForReply.Count > 0)
-            {
-                string messageId = string.Empty;
-
-                while (messageId != null)
-                {
-                    messageId = null;
-                    MessageIdAndTimestamp messageIdAndTimestamp = null;
-
-                    // To consider: Replace the following using LINQ
-                    foreach (MessageIdAndTimestamp key in _pendingReplies.Keys)
-                    {
-                        if (_twitterUsersWaitingForReply.ContainsKey(key))
-                        {
-                            messageIdAndTimestamp = key;
-                            messageId = messageIdAndTimestamp.MessageId;
-                            break;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(messageId))
-                    {
-                        ReplyInTwitter(
-                            _pendingReplies[messageIdAndTimestamp],
-                            _twitterUsersWaitingForReply[messageIdAndTimestamp]);
-                    }
-                }
-            }
+            _twitterManager.SendMessage(activity.Text, twitterUserIdentifier.TwitterUserId, twitterUserIdentifier.ScreenName);
         }
 
         /// <summary>
@@ -197,7 +90,7 @@ namespace TwitterBotFWIntegration
         /// <param name="sender"></param>
         /// <param name="activities">A list of activities sent by the bot.</param>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private void OnActivitiesReceived(object sender, IList<Activity> activities)
+        protected virtual void OnActivitiesReceived(object sender, IList<Activity> activities)
         {
             foreach (Activity activity in activities)
             {
@@ -207,23 +100,20 @@ namespace TwitterBotFWIntegration
                 {
                     MessageIdAndTimestamp messageIdAndTimestamp = new MessageIdAndTimestamp(messageId);
 
-                    if (_twitterUsersWaitingForReply.ContainsKey(messageIdAndTimestamp))
-                    {
-                        TwitterUserIdentifier twitterUserIdentifier = _twitterUsersWaitingForReply[messageIdAndTimestamp];
+                    TwitterUserIdentifier twitterUserIdentifier =
+                        _messageAndUserIdCache.GetTwitterUserWaitingForReply(messageIdAndTimestamp);
 
-                        if (twitterUserIdentifier != null)
-                        {
-                            ReplyInTwitter(activity, twitterUserIdentifier);
-                        }
+                    if (twitterUserIdentifier != null)
+                    {
+                        ReplyInTwitter(activity, twitterUserIdentifier);
                     }
                     else
                     {
                         // Looks like we received the reply activity before we got back
                         // the response from sending the original message to the bot
-                        _pendingReplies[messageIdAndTimestamp] = activity;
+                        _messageAndUserIdCache.AddPendingReplyFromBotToTwitterUser(messageIdAndTimestamp, activity);
 
-                        System.Diagnostics.Debug.WriteLine(
-                            $"Stored activity with message ID '{messageId}' - the number pending activities is now {_pendingReplies.Count}");
+                        System.Diagnostics.Debug.WriteLine($"Stored activity with message ID '{messageId}'");
                     }
                 }
             }
@@ -236,7 +126,7 @@ namespace TwitterBotFWIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="messageEventArgs">Contains the Twitter message details.</param>
-        private async void OnTweetReceivedAsync(object sender, Tweetinvi.Events.MessageEventArgs messageEventArgs)
+        protected virtual async void OnTweetReceivedAsync(object sender, Tweetinvi.Events.MessageEventArgs messageEventArgs)
         {
             string messageId = await _directLineManager.SendMessageAsync(
                 messageEventArgs.Message.Text,
@@ -257,15 +147,23 @@ namespace TwitterBotFWIntegration
 
                 TwitterUserIdentifier twitterUserIdentifier = new TwitterUserIdentifier()
                 {
-                    Id = messageEventArgs.Message.SenderId,
+                    TwitterUserId = messageEventArgs.Message.SenderId,
                     ScreenName = messageEventArgs.Message.SenderScreenName
                 };
 
-                _twitterUsersWaitingForReply[messageIdAndTimestamp] = twitterUserIdentifier;
-
-                CheckForPendingActivities();
+                // Store the Twitter user details so that we know who to reply to
+                _messageAndUserIdCache.AddTwitterUserWaitingForReply(messageIdAndTimestamp, twitterUserIdentifier);
 
                 _directLineManager.StartPolling();
+            }
+
+            // Check for pending activities
+            foreach (ActivityForTwitterUserBundle pendingMessage
+                in _messageAndUserIdCache.GetPendingRepliesToTwitterUsers())
+            {
+                ReplyInTwitter(
+                    pendingMessage.ActivityForTwitterUser,
+                    pendingMessage.TwitterUserIdentifier);
             }
         }
     }

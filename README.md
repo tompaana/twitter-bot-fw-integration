@@ -69,7 +69,7 @@ The class library ([here](/TwitterBotFWIntegration)) consists of three main clas
 * [DirectLineManager](/TwitterBotFWIntegration/DirectLineManager.cs) implements the Direct Line
   connection with the bot. The class allows you to send and retrieve messages (`Activity`) to/from
   the bot.
-* [Twitter](/TwitterBotFWIntegration/Twitter.cs) utilizes
+* [TwitterManager](/TwitterBotFWIntegration/TwitterManager.cs) utilizes
   [Tweetinvi library](https://github.com/linvi/tweetinvi) to receive and send Tweets via the Twitter
   REST API.
 
@@ -81,5 +81,14 @@ TwitterBotIntegrationManager twitterBotIntegrationManager = new TwitterBotIntegr
 
 twitterBotIntegrationManager.Start();
 ```
+
+Remember to dispose the object after it is no longer needed:
+
+```cs
+twitterBotIntegrationManager.Dispose();
+```
+
+This can be also replaced with `using` statement that takes care of disposing the object after the
+scope of the statement ends.
 
 See [Program.cs](/TwitterBotSample/Program.cs) of the sample.

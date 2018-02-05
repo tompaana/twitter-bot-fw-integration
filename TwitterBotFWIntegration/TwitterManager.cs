@@ -2,7 +2,7 @@
 
 namespace TwitterBotFWIntegration
 {
-    public class Twitter : IDisposable
+    public class TwitterManager : IDisposable
     {
         /// <summary>
         /// True, if the Twitter stream is ready (started). False otherwise.
@@ -27,7 +27,7 @@ namespace TwitterBotFWIntegration
         /// <param name="consumerSecret">The Twitter consumer secret.</param>
         /// <param name="accessToken">The Twitter app access token.</param>
         /// <param name="accessTokenSecret">The Twitter app secret.</param>
-        public Twitter(string consumerKey, string consumerSecret, string accessToken = null, string accessTokenSecret = null)
+        public TwitterManager(string consumerKey, string consumerSecret, string accessToken = null, string accessTokenSecret = null)
         {
             if (string.IsNullOrEmpty(consumerKey) || string.IsNullOrEmpty(consumerSecret))
             {
